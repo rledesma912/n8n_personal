@@ -1,0 +1,7 @@
+# Ignora el archivo de variables de entorno local
+.env
+
+# Ignorar cualquier archivo temporal o de editor
+*.swp
+*.swo
+.DS_Store

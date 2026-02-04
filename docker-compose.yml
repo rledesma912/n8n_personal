@@ -1,0 +1,36 @@
+
+services:
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ALLOW_RESET=TRUE  # Permite resetear la base de datos desde la API ()
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma_data
+    volumes:
+      - /home/rick/LLM/chromasdb_calabaza:/chroma_data
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    # Add the following section to map the host's gateway
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # This is key for Linux[citation:9]
+    user: "1000:1000"
+    volumes:
+      - /home/rick/Cosas/my_n8n_flows:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - TZ=${TZ}
+      - GENERIC_TIMEZONE=${TZ}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_PROTOCOL=http
+      - N8N_EDITOR_BASE_URL=http://localhost:5678
