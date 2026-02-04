@@ -11,7 +11,7 @@ services:
       - IS_PERSISTENT=TRUE
       - PERSIST_DIRECTORY=/chroma_data
     volumes:
-      - /home/rick/LLM/chromasdb_calabaza:/chroma_data
+      - ${CHROMA_DATA_PATH}:/chroma_data
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
@@ -22,8 +22,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"  # This is key for Linux[citation:9]
     user: "1000:1000"
-    volumes:
-      - /home/rick/Cosas/my_n8n_flows:/home/node/.n8n
+    volumes:      
+      - ${N8N_FLOWS_PATH}:/home/node/.n8n
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
