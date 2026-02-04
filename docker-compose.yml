@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - ALLOW_RESET=TRUE  # Permite resetear la base de datos desde la API ()
+      - ALLOW_RESET=TRUE  # Permite resetear la base de datos desde la API
       - IS_PERSISTENT=TRUE
       - PERSIST_DIRECTORY=/chroma_data
     volumes:
