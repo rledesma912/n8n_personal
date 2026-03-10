@@ -1,5 +1,24 @@
 
 services:
+  # --- SERVICIO BASE DE DATOS (NUEVO) ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_n8n
+    restart: unless-stopped
+    ports:
+      - "5432:5432"  # Formato: "PuertoHost:PuertoContenedor"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - TZ=${TZ}
+    volumes:
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   chromadb:
     image: chromadb/chroma:latest
     container_name: chromadb
@@ -24,13 +43,27 @@ services:
     user: "1000:1000"
     volumes:      
       - ${N8N_FLOWS_PATH}:/home/node/.n8n
+      - /home/rick/LLM/apps/automated_narrative:/home/node/.n8n-files/archivos
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
       - TZ=${TZ}
       - GENERIC_TIMEZONE=${TZ}
+
+      # --- CONEXIÓN A POSTGRES (SUSTITUYE A SQLITE) ---
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+
+      # --- OTROS ---
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      - N8N_RUNNERS_ENABLED=true
+      #- N8N_RUNNERS_ENABLED=true
       - N8N_PROTOCOL=http
       - N8N_EDITOR_BASE_URL=http://localhost:5678
+    depends_on:
+      postgres:
+        condition: service_healthy
